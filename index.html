@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de Amor Compacta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #e91e63;
+            --color-secondary: #f8bbd9;
+            --color-accent: #c2185b;
+            --color-light: #fff5f9;
+            --color-text: #4a4a4a;
+            --page-ratio: 1.414; /* Relación A4 (1:√2) */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+        
+        body {
+            background-color: var(--color-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 15px;
+            background-image: 
+                radial-gradient(circle at 10px 10px, rgba(233, 30, 99, 0.05) 2px, transparent 0),
+                radial-gradient(circle at 30px 30px, rgba(233, 30, 99, 0.05) 2px, transparent 0);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--color-accent);
+            width: 100%;
+            max-width: 700px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            font-size: 0.95rem;
+            color: var(--color-accent);
+            font-style: italic;
+        }
+        
+        .heart-icon {
+            color: var(--color-primary);
+            margin: 0 5px;
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .letter-container {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            height: 400px; /* Altura fija compacta */
+            margin: 0 auto 15px;
+            perspective: 1200px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            padding: 25px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            opacity: 0;
+            transform: translateX(100%) rotateY(-10deg);
+            transition: transform 0.6s ease, opacity 0.6s ease;
+            overflow: hidden;
+            z-index: 1;
+            border-left: 8px solid var(--color-secondary);
+            box-shadow: inset 0 0 20px rgba(248, 187, 217, 0.1);
+        }
+        
+        .page.active {
+            opacity: 1;
+            transform: translateX(0) rotateY(0deg);
+            z-index: 10;
+        }
+        
+        .page.previous {
+            transform: translateX(-100%) rotateY(10deg);
+            opacity: 0;
+        }
+        
+        .page-number {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            color: var(--color-primary);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--color-secondary);
+        }
+        
+        .heart-decoration {
+            color: var(--color-primary);
+            font-size: 1.4rem;
+            margin-right: 10px;
+        }
+        
+        .page-title {
+            color: var(--color-accent);
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .page-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--color-text);
+            text-align: justify;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 8px;
+            padding-bottom: 10px;
+        }
+        
+        .page-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .page-content::-webkit-scrollbar-track {
+            background: #fff0f5;
+            border-radius: 3px;
+        }
+        
+        .page-content::-webkit-scrollbar-thumb {
+            background: var(--color-secondary);
+            border-radius: 3px;
+        }
+        
+        .page-content::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 600px;
+            margin-top: 10px;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+            flex: 1;
+            max-width: 180px;
+            min-height: 40px;
+        }
+        
+        .nav-btn:hover {
+            background-color: var(--color-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(233, 30, 99, 0.4);
+        }
+        
+        .nav-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .nav-btn:disabled {
+            background-color: #ffb6c1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        .nav-btn i {
+            margin: 0 8px;
+        }
+        
+        .page-indicators {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            gap: 8px;
+            max-width: 90%;
+        }
+        
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--color-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator:hover {
+            transform: scale(1.2);
+        }
+        
+        .indicator.active {
+            background-color: var(--color-primary);
+            transform: scale(1.3);
+            box-shadow: 0 0 8px rgba(233, 30, 99, 0.5);
+        }
+        
+        .envelope {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: var(--color-primary);
+            font-size: 1.8rem;
+            transform: rotate(-10deg);
+            opacity: 0.8;
+            z-index: 15;
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--color-accent);
+            font-size: 0.8rem;
+            padding: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+        
+        .love-stamp {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transform: rotate(-5deg);
+            border: 2px dashed white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* Media Queries para responsividad perfecta */
+        @media (max-width: 768px) {
+            .letter-container {
+                height: 380px;
+            }
+            
+            .page {
+                padding: 20px 25px;
+            }
+            
+            .header h1 {
+                font-size: 1.7rem;
+            }
+            
+            .page-title {
+                font-size: 1.3rem;
+            }
+            
+            .page-content {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .nav-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                min-height: 38px;
+            }
+            
+            .envelope {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+            
+            .letter-container {
+                height: 350px;
+                width: 95%;
+            }
+            
+            .page {
+                padding: 18px 22px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
+                font-size: 0.85rem;
+            }
+            
+            .page-title {
+                font-size: 1.2rem;
+            }
+            
+            .page-content {
+                font-size: 0.85rem;
+                line-height: 1.5;
+            }
+            
+            .nav-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+                min-height: 36px;
+                max-width: 150px;
+            }
+            
+            .nav-btn i {
+                margin: 0 5px;
+            }
+            
+            .envelope {
+                font-size: 1.3rem;
+            }
+            
+            .love-stamp {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .page-indicators {
+                gap: 6px;
+            }
+            
+            .indicator {
+                width: 8px;
+                height: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .letter-container {
+                height: 320px;
+            }
+            
+            .page {
+                padding: 15px 20px;
+            }
+            
+            .page-title {
+                font-size: 1.1rem;
+            }
+            
+            .page-content {
+                font-size: 0.8rem;
+                line-height: 1.4;
+            }
+            
+            .nav-btn {
+                padding: 7px 12px;
+                font-size: 0.75rem;
+                min-height: 34px;
+                max-width: 130px;
+            }
+            
+            .footer {
+                font-size: 0.75rem;
+                margin-top: 15px;
+            }
+        }
+        
+        @media (max-height: 700px) {
+            .letter-container {
+                height: 320px;
+            }
+            
+            .header {
+                margin-bottom: 10px;
+            }
+            
+            .footer {
+                margin-top: 15px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .letter-container {
+                height: 300px;
+            }
+            
+            .page {
+                padding: 15px 20px;
+            }
+            
+            .page-content {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Orientación horizontal (landscape) */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .main-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                max-width: 95%;
+            }
+            
+            .letter-container {
+                height: 85vh;
+                max-height: 280px;
+                width: 60%;
+                max-width: 500px;
+                margin-bottom: 10px;
+            }
+            
+            .navigation {
+                width: 60%;
+                max-width: 500px;
+                margin-top: 5px;
+            }
+            
+            .page-indicators {
+                width: 60%;
+                max-width: 500px;
+                margin-top: 10px;
+            }
+            
+            .footer {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+        
+        /* Para pantallas muy grandes */
+        @media (min-width: 1200px) {
+            .letter-container {
+                height: 450px;
+                max-width: 700px;
+            }
+            
+            .page {
+                padding: 30px 35px;
+            }
+            
+            .page-content {
+                font-size: 1rem;
+                line-height: 1.6;
+            }
+            
+            .nav-btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Carta de Amor <i class="fas fa-heart heart-icon"></i></h1>
+    </div>
+    
+    <div class="main-container">
+        <div class="letter-container">
+            <div class="envelope">
+                <i class="fas fa-envelope"></i>
+            </div>
+            
+            <!-- Página 1 -->
+            <div class="page active" id="page-1">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-heart"></i></div>
+                    <h2 class="page-title">Para Mi niña linda</h2>
+                </div>
+                <div class="page-content">
+                    <p>Mi niña,</p>
+                    <p>En estas páginas quiero expresarte todo lo que siento por ti. Eres la persona más especial de mi vida y cada día a tu lado es un regalo.</p>
+                    <p>Tu sonrisa ilumina mis días, tu amor da sentido a mi existencia. Contigo he encontrado la felicidad que siempre busqué.</p>
+                    <p>Esta carta es solo un pequeño reflejo de mi amor infinito por ti.</p>
+                    <p>Con todo mi corazón,</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="page-number">1/12</div>
+            </div>
+            
+            <!-- Página 2 -->
+            <div class="page" id="page-2">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-heartbeat"></i></div>
+                    <h2 class="page-title">Nuestro Primer Día</h2>
+                </div>
+                <div class="page-content">
+                    <p>Recuerdo nuestro primer encuentro como si fuera ayer cuando me fuiste a ver jugar, estaba bien nervioso cuando te vi en las gradas JAJA, cuando viniste a verme jugar baloncesto en donde no anoté ninguna JAJA .</p>
+                    <p>Tu mirada sincera, tu sonrisa tímida, tu forma de hablar... todo en ti me atrajo desde el primer momento.</p>
+                    <p>Ese día no sabía que estabas destinado a ser el amor de mi vida, pero algo en mi corazón ya lo sabía.</p>
+                    <p>Gracias por ese primer día que cambió mi vida para siempre.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="page-number">2/12</div>
+            </div>
+            
+            <!-- Página 3 -->
+            <div class="page" id="page-3">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-smile"></i></div>
+                    <h2 class="page-title">Tu Sonrisa</h2>
+                </div>
+                <div class="page-content">
+                    <p>Tu sonrisa es mi lugar favorito en el mundo. Cuando sonríes, todo parece mejorar instantáneamente.</p>
+                    <p>He memorizado cada tipo de sonrisa: la tímida, la traviesa, la sincera, la que llega hasta tus ojos.</p>
+                    <p>Cada una es única y preciosa. Tu sonrisa tiene el poder de disipar mis preocupaciones y llenarme de alegría.</p>
+                    <p>Prometo hacer todo lo posible para ver esa sonrisa todos los días de mi vida.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="page-number">3/12</div>
+            </div>
+            
+            <!-- Página 4 -->
+            <div class="page" id="page-4">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-list"></i></div>
+                    <h2 class="page-title">Razones para Amarte</h2>
+                </div>
+                <div class="page-content">
+                    <p>Te amo por mil razones, pero aquí algunas:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Tu bondad con todos</li>
+                        <li>Tu fortaleza interior</li>
+                        <li>Tu sentido del humor</li>
+                        <li>Tu pasión por la vida</li>
+                        <li>Tu apoyo incondicional</li>
+                        <li>Tu forma de entender</li>
+                    </ul>
+                    <p style="margin-top: 10px;">Pero sobre todo, te quiero por ser exactamente quien eres.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="page-number">4/12</div>
+            </div>
+            
+            <!-- Página 5 -->
+            <div class="page" id="page-5">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-clock"></i></div>
+                    <h2 class="page-title">Momentos Especiales</h2>
+                </div>
+                <div class="page-content">
+                    <p>Atesoro cada momento contigo:</p>
+                    <p>Nuestras conversaciones hasta tarde, la ves que te vi en San Carlos en el juego y sonreíste cuando te fui a saludar.</p>
+                    <p>Cada risa compartida, cada mirada cómplice, cada mano que sostuve se ha convertido en un recuerdo preciado.</p>
+                    <p>Y lo mejor es que aún nos quedan infinitos momentos por vivir juntos.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="page-number">5/12</div>
+            </div>
+            
+            <!-- Página 6 -->
+            <div class="page" id="page-6">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-home"></i></div>
+                    <h2 class="page-title">Mi Hogar Eres Tú</h2>
+                </div>
+                <div class="page-content">
+                    <p>He aprendido que el hogar no es un lugar, sino una persona. Y tú eres mi hogar.</p>
+                    <p>Contigo he encontrado el refugio que no sabía que necesitaba. En tus brazos encuentro paz, en tus palabras consuelo. Sé que a veces soy un poco celoso pero no me gustaría perderte por algo o por alguien. Sé que mis actitudes no son perfectas, pero quiero mejorar por ti. No importa dónde estemos, si estoy contigo, estoy en casa. Has creado un espacio en tu vida para mí.</p>
+                    <p>Ese es el lugar más valioso que he tenido.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-home-heart"></i>
+                </div>
+                <div class="page-number">6/12</div>
+            </div>
+            
+            <!-- Página 7 -->
+            <div class="page" id="page-7">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-handshake"></i></div>
+                    <h2 class="page-title">Mi Promesa</h2>
+                </div>
+                <div class="page-content">
+                    <p>Te prometo quererte y amarte en los días soleados y en los tormentosos.</p>
+                    <p>Te prometo apoyarte, celebrar tus triunfos y consolarte en tus derrotas.</p>
+                    <p>Te prometo ser tu compañero de aventuras y tu confidente.</p>
+                    <p>Te prometo elegirte cada día, porque eres la mejor decisión de mi vida.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <div class="page-number">7/12</div>
+            </div>
+            
+            <!-- Página 8 -->
+            <div class="page" id="page-8">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-rainbow"></i></div>
+                    <h2 class="page-title">Nuestro Futuro</h2>
+                </div>
+                <div class="page-content">
+                    <p>Cuando pienso en el futuro, solo puedo imaginarte a mi lado.</p>
+                    <p>Veo viajes por compartir, sueños por cumplir, una vida por construir.</p>
+                    <p>No sé lo que el destino nos depara, pero sí sé que quiero enfrentarlo contigo.</p>
+                    <p>Contigo, incluso los desafíos parecen oportunidades.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="page-number">8/12</div>
+            </div>
+            
+            <!-- Página 9 -->
+            <div class="page" id="page-9">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-seedling"></i></div>
+                    <h2 class="page-title">Creciendo Juntos</h2>
+                </div>
+                <div class="page-content">
+                    <p>Contigo he aprendido que el amor crece y se fortalece con el tiempo.</p>
+                    <p>Hemos cultivado nuestro amor con paciencia y dedicación. Aunque discutamos no significa que nos tengamos que alejar,, te quiero en mi vida, quiero formar una familia contigo.</p>
+                    <p>Juntos hemos superado desafíos que nos hicieron más fuertes.</p>
+                    <p>Seguimos creciendo, evolucionando, convirtiéndonos en mejores versiones.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="page-number">9/12</div>
+            </div>
+            
+            <!-- Página 10 -->
+            <div class="page" id="page-10">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-lightbulb"></i></div>
+                    <h2 class="page-title">Mi Inspiración</h2>
+                </div>
+                <div class="page-content">
+                    <p>Eres mi inspiración diaria, la musa de mis mejores pensamientos.</p>
+                    <p>Tu forma de ver el mundo me desafía a expandir mis horizontes.</p>
+                    <p>Eres mi motivación para ser mejor, para soñar más grande.</p>
+                    <p>En un mundo a veces gris, tú eres mi destello de color.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="page-number">10/12</div>
+            </div>
+            
+            <!-- Página 11 -->
+            <div class="page" id="page-11">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-infinity"></i></div>
+                    <h2 class="page-title">Amor Infinito</h2>
+                </div>
+                <div class="page-content">
+                    <p>Mi amor por ti no conoce fronteras ni limitaciones.</p>
+                    <p>Es un sentimiento que ha echado raíces profundas en mi alma.</p>
+                    <p>Este amor no es posesivo, sino liberador. No es frágil, sino inquebrantable.</p>
+                    <p>Eres mi siempre en un mundo de efímeros.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-infinity"></i>
+                </div>
+                <div class="page-number">11/12</div>
+            </div>
+            
+            <!-- Página 12 -->
+            <div class="page" id="page-12">
+                <div class="page-header">
+                    <div class="heart-decoration"><i class="fas fa-heart-circle"></i></div>
+                    <h2 class="page-title">Para Siempre</h2>
+                </div>
+                <div class="page-content">
+                    <p>Llegamos al final de estas páginas, pero solo al comienzo de nuestra eternidad.</p>
+                    <p>Te amo más de lo que las palabras pueden expresar.</p>
+                    <p>Gracias por elegirme cada día.</p>
+                    <p>Te quiero demasiado mi niña hermosa, te extraño demasiado.</p>
+                </div>
+                <div class="love-stamp">
+                    <i class="fas fa-heart-crack"></i>
+                </div>
+                <div class="page-number">12/12</div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn" id="prev-btn" disabled>
+                <i class="fas fa-chevron-left"></i> Anterior
+            </button>
+            
+            <button class="nav-btn" id="next-btn">
+                Siguiente <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="page-indicators" id="page-indicators">
+            <!-- Los indicadores se generarán con JavaScript -->
+        </div>
+        
+        <div class="footer">
+            <p>Carta de amor -  páginas de amor eterno</p>
+            <p><i class="fas fa-heart" style="color: var(--color-primary); margin: 0 3px;"></i> Con todo mi amor <i class="fas fa-heart" style="color: var(--color-primary); margin: 0 3px;"></i></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pages = document.querySelectorAll('.page');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const indicatorsContainer = document.getElementById('page-indicators');
+            let currentPage = 0;
+            const totalPages = pages.length;
+            
+            // Crear indicadores de página
+            function createIndicators() {
+                indicatorsContainer.innerHTML = '';
+                for (let i = 0; i < totalPages; i++) {
+                    const indicator = document.createElement('div');
+                    indicator.classList.add('indicator');
+                    if (i === 0) indicator.classList.add('active');
+                    indicator.dataset.page = i;
+                    indicator.addEventListener('click', () => goToPage(i));
+                    indicatorsContainer.appendChild(indicator);
+                }
+            }
+            
+            createIndicators();
+            const indicators = document.querySelectorAll('.indicator');
+            
+            // Actualizar estado de los botones
+            function updateButtons() {
+                prevBtn.disabled = currentPage === 0;
+                nextBtn.disabled = currentPage === totalPages - 1;
+                
+                // Actualizar indicadores
+                indicators.forEach((indicator, index) => {
+                    if (index === currentPage) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Navegar a una página específica
+            function goToPage(pageIndex) {
+                if (pageIndex === currentPage) return;
+                
+                const direction = pageIndex > currentPage ? 'next' : 'prev';
+                
+                pages[currentPage].classList.remove('active');
+                pages[currentPage].classList.add(direction === 'next' ? 'previous' : 'next');
+                
+                currentPage = pageIndex;
+                
+                setTimeout(() => {
+                    pages[currentPage].classList.remove('previous', 'next');
+                    pages[currentPage].classList.add('active');
+                    updateButtons();
+                }, 50);
+            }
+            
+            // Función para ir a la página siguiente
+            function nextPage() {
+                if (currentPage < totalPages - 1) {
+                    goToPage(currentPage + 1);
+                }
+            }
+            
+            // Función para ir a la página anterior
+            function prevPage() {
+                if (currentPage > 0) {
+                    goToPage(currentPage - 1);
+                }
+            }
+            
+            // Event listeners para los botones
+            nextBtn.addEventListener('click', nextPage);
+            prevBtn.addEventListener('click', prevPage);
+            
+            // Navegación con teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                    nextPage();
+                } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                    prevPage();
+                }
+            });
+            
+            // Navegación táctil (swipe) para dispositivos móviles
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.querySelector('.letter-container').addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            document.querySelector('.letter-container').addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+            
+            function handleSwipe() {
+                const swipeThreshold = 30;
+                const difference = touchStartX - touchEndX;
+                
+                if (Math.abs(difference) > swipeThreshold) {
+                    if (difference > 0) {
+                        nextPage();
+                    } else {
+                        prevPage();
+                    }
+                }
+            }
+            
+            // Efecto para el sobre
+            const envelope = document.querySelector('.envelope');
+            let angle = -10;
+            setInterval(() => {
+                angle = angle === -10 ? -5 : -10;
+                envelope.style.transform = `rotate(${angle}deg)`;
+            }, 1500);
+            
+            // Inicializar
+            updateButtons();
+        });
+    </script>
+</body>
+</html>
